@@ -16,6 +16,15 @@ public:
 			cout << auxiliar.nombre << auxiliar.apellido << "\n";
 		}
 	}
+	static void imprimrPerros(lista<perro> perros) {
+		for (int i = 1; i <= perros.get_tam(); ++i) {
+			perro auxiliar = perros.buscar(i);			
+			cout << auxiliar.nombre << auxiliar.raza << "\n";
+		}
+	}
+	
+	
+	
 		
 	
 };
