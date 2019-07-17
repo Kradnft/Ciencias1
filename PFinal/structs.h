@@ -13,9 +13,9 @@ struct paseo{
 };
 
 struct perro{
-    string nombre, raza, tamanio, Tcomida;
+    string nombre, id, raza, tamanio, Tcomida;
     int edad;
-    lista <paseo> paseos;
+    lista <paseo> paseos;    
 };
 
 struct cliente{
@@ -35,14 +35,14 @@ struct paseador{
 
     //Falta ver como manejra horario
 };
-struct sucursal{
+struct sucursal {
     string nombre, localidad;
     int calle, carrera;
     int Npaseadores, NClientes;
     int cllIn, cllFin, craIn, craFin;
 };
 
-struct administrador{
+struct administrador {
     string nombre, identificacion;
 };
 
