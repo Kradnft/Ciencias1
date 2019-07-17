@@ -13,7 +13,7 @@
 #include <fstream>
 #include <vector>
 #include <bits/stdc++.h> 
-#include <boost/algorithm/string.hpp> 
+
 
 
 using namespace std;
@@ -28,12 +28,14 @@ int menuPV();
 int menuAdministrador();
 void imprimirClientes(lista<cliente> Clientes);
 bool comprobarliente (lista<cliente> Clientes, string nuemro);
-string leerArchivo(ifstream archivo);
 cliente registrarCliente(cliente Cl);
-cliente buscarPorId (lista<cliente> Clientes);
-paseador comprobarP(lista <paseador> paseadores, string identificador);
+cliente buscarPorId (lista<cliente> Clientes, string id);
+bool comprobarP(lista <paseador> paseadores, string identificador);
 paseador registrarPaseador(paseador Pa);
 lista<cliente> llenarClientes(lista<cliente> Clientes);
+string validarLocalidad(int cll, int cra);
+lista<paseador> llenarPaseadores(lista<paseador> Paseadores);
+
 perro registarPerro(perro P);
 paseo newPaseo(string localidad, int hora,int dia, int mes, int duracion);
 
@@ -52,6 +54,9 @@ int main(int argc, const char   * argv[]) {
     administrador A;
     paseo Paseo;
 
+    clientes = llenarClientes(clientes);
+    paseadores= llenarPaseadores(paseadores);
+
     string tipo;
     while (opc1!=4){
 	opc1=menu1();
@@ -64,13 +69,16 @@ int main(int argc, const char   * argv[]) {
 	            clientes.insertar_final(C);
 	            Interfaz::imprimirClientes(clientes); 
 	            string Mclientes;
-	            Mclientes=leerArchivo(clientesArchivo);
+	            string line;
+				while(getline(clientesArchivo, line)){
+				    Mclientes += line + "\n";
+				}
 				//Le suma a lo del archivo el nuevo cliente ingresado.
-				mensaje += C.identificacion + "-"+C.apellido+"-"+C.nombre+"-"+C.localidad;
-				mensaje += "-"+C.sexo;
+				Mclientes += C.identificacion + "-"+C.apellido+"-"+C.nombre+"-"+C.localidad;
+				Mclientes += "-"+C.sexo;
 				//Abre el archivo y le escribe lo que ya se tenia en los clientes mas el nuevo
 				myfile.open ("clientes.txt");
-				myfile << mensaje <<"\n";
+				myfile << Mclientes <<"\n";
 				myfile.close();                       
 	        }
 	        
@@ -78,7 +86,6 @@ int main(int argc, const char   * argv[]) {
 	        	int opcC=-1;
 	        	cout<<"Por favor ingrese de nuevo su documento"<<endl;
 	        	string doc;
-	        	clientes = llenarClientes(clientes);
 	        	while (opcC<0){
 	        		cin>>doc;
 	        		C = buscarPorId(clientes, doc);
@@ -87,7 +94,7 @@ int main(int argc, const char   * argv[]) {
 	        			perro Pe;
 	        			lista<perro> perros;
 	        			Pe=registarPerro(Pe);
-	        			perros.insertar_final(perro);
+	        			perros.insertar_final(Pe);
 	        			C.Nperros=C.Nperros+1;
 	        			C.perros=perros;
 					}
@@ -107,7 +114,7 @@ int main(int argc, const char   * argv[]) {
 						cout<<"Ingrese localidad"<<endl;
 						string localidad;
 						cin>>localidad;
-						inr dura;
+						int dura;
 						cout<<"Ingrese duracion del paseo (1 o 2 horas)"<<endl;
 						while (2<dura||dura<1)
 							cin>>dura;
@@ -126,7 +133,7 @@ int main(int argc, const char   * argv[]) {
 					}
 					else {
 	        			C = buscarPorId(clientes, doc);
-	        			imprimirPerros(C.perros);
+	        			Interfaz::imprimrPerros(C.perros);
 					}
 	
 				}
@@ -135,20 +142,23 @@ int main(int argc, const char   * argv[]) {
 	
 	            
 	    }
-	    else if (opc1==2)
+	    else if (opc1==2){
 	        tipo = "Paseador";
 	        int opcP=-1;
 	        while (opcP<0){
-	        	opcP = validarPaseador(Paseadores);
+	        	opcP = validarPaseador(paseadores);
 			}
 			if (opcP==1){
 				P = registrarPaseador(P);
-				Paseadores.insertar_final(P);
+				paseadores.insertar_final(P);
 				string MPaseadores;
-	            MPaseadores=leerArchivo(paseadoresArchivo);
-	            MPaseadores += P.identificacion+"-"+P.nombre+"-"+P.apellido+"-"+P.edad+"-"+P.cel+"-"+P.barrio;
+				string line;
+				while (getline(paseadoresArchivo, line)){
+				    MPaseadores += line + "\n";
+				}
+	            MPaseadores += P.identificacion+"-"+P.nombre+"-"+P.apellido+"-"+P.cel+"-"+P.barrio;
 	            myfile.open ("paseadores.txt");
-				myfile << mensaje <<"\n";
+				myfile << MPaseadores <<"\n";
 				myfile.close();   
 			}
 			else{
@@ -166,31 +176,26 @@ int main(int argc, const char   * argv[]) {
 					//P=definirHorario(P);
 				}
 				//EN LO DE ABAJO TOCA UN METODO QUE NOS DEVUELVA LA POSICION DEL PASEADOR A BORRAR
-				else 
-					//paseadores.borrar_nodo(1);
+				else {
+						//paseadores.borrar_nodo(1);
+
+				}
 				
 				
 				
 			}
+		}
 			//FALTA TODO ESTO, CREO QUE ESTE ES EL QUE HACE LAS CONSUTLTAS
-	    else
-	        tipo = "Administrador";
+	    else{
+	    		        tipo = "Administrador";
+
+		}
 	}
     
     
     return 0;
 }
 
-
-string leerArchivo(ifstream archivo){
-	string line, mensaje;
-	while(getline(clientesArchivo, line)){
-		cout<<"Leyendo:"<<line <<endl;	
-	    mensaje += line + "\n";
-	}
-	
-	return mensaje;
-}
 
 //Metodo paseo
 //FALTA LLENAR BIEN ESTE METODO CON LA VALIDACION DE MANES QUE PUEDEN HACERLO Y TODO ESO
@@ -235,18 +240,64 @@ int validarPaseador(lista <paseador> Paseadores){
     paseador P;
     cout<<"Por favor ingresa tu numero de documento"<<endl;
     cin >> id;
-    P = comprobarP(Paseadores, id);
-	if (!P)
-		return 1;
-	else
-		return 2; 
+    bool nuevo = false;
+    nuevo = comprobarP(Paseadores, id);
+    
+    //Comprobamos si es un usuario que ya esta en la lista o no
+    if (nuevo)
+        return 1;
+    else {
+        cout <<"Bienvenido de nuevo"<<endl;
+        return 2;
+    }
+
 }
 //Miramos si ya existe dento de la lista
-paseador comprobarP(lista <paseador> paseadores, string identificador){
+bool comprobarP(lista <paseador> paseadores, string identificador){
+	lista<paseador> aux = llenarPaseadores(paseadores);
+    paseador x;
+    bool reto=true;
+    int t= aux.get_tam();
+    for (int r=1; r<=t; r++){
+		x = aux.buscar(r);
+		if (x.identificacion==identificador)
+			reto = false;
+	}
+    return reto;
+}
+
+lista<paseador> llenarPaseadores(lista<paseador> Paseadores){
+	paseador x;
+    ifstream lect("paseadores.txt");
+    string mensaje,line;
+
+	while(getline(lect, line)){
+			    mensaje += line + "\n";
 	
+	}
+    vector<string> paseadores, atributos; 
+    stringstream check1(mensaje);
+    string intermediate;
+    while (getline (check1, intermediate, '\n')){
+    	paseadores.push_back(intermediate);
+	}
+    for (int i = 0; i < paseadores.size(); i++) {
+    	stringstream check2(paseadores[i]);
+    	while (getline (check2, intermediate, '-')){
+	    	atributos.push_back(intermediate);
+		}
+    	x.identificacion = atributos[0];
+    	x.nombre = atributos[1];
+    	x.apellido = atributos[2];
+    	x.cel = atributos[3];
+    	x.barrio = atributos[4];
+    	Paseadores.insertar_final(x);
+	}
+	return Paseadores;
 }
 //Registro de un nuevo paseador
 paseador registrarPaseador(paseador Pa){
+	
 	cout<<"Nombre (solo 1)"<<endl;
     string nombre;
     cin>>nombre;
@@ -265,12 +316,11 @@ paseador registrarPaseador(paseador Pa){
     cout<<"Numero de identificacion"<<endl;
     cin>>nombre;
     Pa.identificacion=nombre;
-    
+    int n =0;
     cout<<"Tu edad"<<endl;
     while (n<18)
     	cin>>n;
     Pa.edad=n;
-    //ingresarPerros(n,C);
     cout<<"Sexo (M o F)"<<endl;
     while (nombre!="M" && nombre!="F")
     	cin>>nombre;
@@ -327,7 +377,7 @@ paseador registrarPaseador(paseador Pa){
     
     
     cout<<"Muy bien has quedado registrado de manera corrcta"<<endl;
-	return cl;
+	return Pa;
 }
 int menuPV(){
 	cout<<"Que deseas hacer: "<<endl;
@@ -337,7 +387,6 @@ int menuPV(){
 	while (opc>4 || opc<1)
 		cin>>opc;
 }
-
 
 //Metodos clientes
 //Menu cliente antiguo
@@ -389,8 +438,9 @@ cliente registrarCliente(cliente cl){
     cout<< "Datos del perro: "<<endl;
     while (n>0){
     	perro per;
-    	per = registrarPerro;
+    	per = registarPerro(per);
     	cl.perros.insertar_final(per);
+    	n--;
 	}
     cout<<"Datos tuyo de nuevo" <<endl;
     cout<<"Ingresa tu edad"<<endl;
@@ -405,13 +455,26 @@ cliente registrarCliente(cliente cl){
     cout<<"Muy bien has quedado registrado de manera corrcta"<<endl;
 	return cl;
 }
+
+bool comprobarCliente (lista<cliente> Clientes, string nuemro){
+    lista<cliente> aux = llenarClientes(Clientes);
+    cliente x;
+    bool reto=true;
+	int t= aux.get_tam();
+    for (int r=1; r<=t ; r++){
+		x = aux.buscar(r);
+		if (x.identificacion==nuemro)
+			reto = false;
+	}
+    return reto;
+}
+
 //Miramos si es nuevo o viejo
 int validarCliente(lista <cliente> clientes){
     string id;
     cliente C;
     cout<<"Por favor ingresa tu numero de documento"<<endl;
     cin >> id;
-    
     bool nuevo = false;
     nuevo = comprobarCliente(clientes, id);
     
@@ -425,19 +488,28 @@ int validarCliente(lista <cliente> clientes){
     
 }
 //LLena la lista de clientes con los que hay en el archivo de texto
+
 lista<cliente> llenarClientes(lista<cliente> Clientes){
 	cliente x;
     ifstream lect("clientes.txt");
     string mensaje,line;
 
 	while(getline(lect, line)){
+		cout<<"Clientes: " <<line<<endl;
 			    mensaje += line + "\n";
 	
 	}
     vector<string> clientes, atributos; 
-    boost::split(clientes, mensaje, boost::is_any_of("\n")); 
-	for (int i = 0; i < clientes.size(); i++) {
-    	boost::split(atributos, clientes[i], boost::is_any_of("-")); 
+    stringstream check1(mensaje);
+    string intermediate;
+    while (getline (check1, intermediate, '\n')){
+    	clientes.push_back(intermediate);
+	}
+    for (int i = 0; i < clientes.size(); i++) {
+    	stringstream check2(clientes[i]);
+    	while (getline (check2, intermediate, '-')){
+	    	atributos.push_back(intermediate);
+		}
     	x.identificacion = atributos[0];
     	x.nombre = atributos[2];
     	x.apellido = atributos[1];
@@ -447,19 +519,8 @@ lista<cliente> llenarClientes(lista<cliente> Clientes){
 	}
 	return Clientes;
 }
-//Miramos si ya existe dento de la lista
-bool comprobarCliente (lista<cliente> Clientes, string nuemro){
-    lista<cliente> aux = llenarClientes(Clientes);
-    cliente x;
-    bool reto=true;
 
-    for (int r=1; r<=aux.get_tam; r++){
-		x = aux.buscar(r);
-		if (x.identificacion==nuemro)
-			reto = false;
-	}
-    return reto;
-};
+//Miramos si ya existe dento de la lista
 
 //Menu inicial 
 
@@ -477,3 +538,23 @@ int menu1(){
     return opc;
 }
 
+string validarLocalidad(int calle, int carrera){
+	if(carrera>=1&&carrera<=13 && calle>=1&&calle<=45)
+		return "santafe";
+	else if(carrera>=1&&carrera<=13 && calle>45&&calle<=100)
+		return chapinero;
+	else if(carrera>=1&&carrera<=13 && calle>100&&calle<=150)
+		return usaquen;
+	else if(carrera>13&&carrera<=45 && calle>=1&&calle<=45)
+		return kennedy;
+	else if(carrera>13&&carrera<=45 && calle>45&&calle<=100)
+		return teusaquillo;
+	else if(carrera>13&&carrera<=45 && calle>100&&calle<=150)
+		return suba; 
+	else if(carrera>45&&carrera<=80 && calle>=1&&calle<=45)
+		return bosa;
+	else if(carrera>45&&carrera<=80 && calle>45&&calle<=100)
+		return fontibon;
+	else if(carrera>45&&carrera<=80 && calle>100&&calle<=150)
+		return engativa;
+}

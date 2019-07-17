@@ -27,7 +27,7 @@ struct cliente{
 struct paseador{
     string nombre, apellido, identificacion;
     string tipoId;
-    string sexo;
+    string sexo, localidad;
     string cel, fijo, correo, cidudadN, paisN, barrio;
     int NperrosAct, edad, NViajes;
     int cllIn, cllFin, craIn, craFin;
